@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-readonly GIT_FLAGS=$(printf "'%s'" "$@")
+readonly GIT_FLAGS=$@
 
 git-cfg() {
    git config $GIT_FLAGS --replace-all "$@"
