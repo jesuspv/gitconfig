@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+readonly GIT_FLAGS=$(printf "'%s'" "$@")
+
+git-cfg() {
+   git config $GIT_FLAGS --replace-all "$@"
+}
+
+#######################################
+# branch
+######################################
+
+# setup pull --rebase as default for every new branch
+# or manually for every branch you have with 'git config branch.BRANCH_NAME.rebase true' (replace BRANCH_NAME as required)
+# Note that you can disable automatic rebasing when needed by 'git pull --no-rebase'
+git-cfg branch.autosetuprebase always
+
+# master branch (a special one!) needs to be set in this way
+git-cfg branch.master.rebase true
+
+#######################################
+# core
+#######################################
+
+# track changes of the executable bit of mode (not the read/write bits)
+git-cfg core.filemode true
+
+# to speed up NFS git status command
+# http://stackoverflow.com/questions/2872587/git-can-i-speed-up-committing
+git-cfg core.preloadindex true
+
+# required for the 'pl' alias to colorize the output
+git-cfg core.pager "less -r"
+
+git-cfg core.autocrlf input
+
+git-cfg core.bare false
+
+#######################################
+# fetch
+#######################################
+
+git-cfg fetch.prune true
+
+#######################################
+# merge
+#######################################
+
+# reminder to rebase, forcing otherwise with --no-ff
+git-cfg merge.ff only
+
+#######################################
+# push
+#######################################
+
+git-cfg push.default upstream
+
+#######################################
+# alias
+#######################################
+
+git-cfg alias.amend "commit --all --amend --no-edit"
+
+git-cfg alias.br branch
+
+# cherry picking from another repository: $1="remote repository path" $2="remote commit HASH"
+git-cfg alias.cherry-pick-remote "! sh -c 'git --git-dir=\$1/.git format-patch -k -1 --stdout \$2 | git am -3 -k'"
+
+git-cfg alias.ci "commit -s"
+
+git-cfg alias.co checkout
+
+# Example: git fshow HEAD~5.. # show list of changed files over the last four commits
+git-cfg alias.fshow \
+   "! sh -c 'git show --pretty=format: --name-only \$1 | grep -v ^\$ | uniq | sed s@^@\`git rev-parse --show-toplevel\`/@' -"
+
+git-cfg alias.lf "log --follow"
+
+# pretty log
+git-cfg alias.pl "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+git-cfg alias.st status
+
+# Example: git vim HEAD~5.. # edit files changed over the last four commits
+git-cfg alias.vim "! sh -c 'vim \`git fshow \$1\`' -"
+
+#######################################
+# alias - gerrit
+#######################################
+
+UPSTREAM_BRANCH='git rev-parse --abbrev-ref --symbolic-full-name @{u} | cut -f2 -d"/"'
+GERRIT_REVIEWERS_TIP='test -v GERRIT_REVIEWERS \
+   || echo "Add reviewers by setting their username to environment variable GERRIT_REVIEWERS." \
+           "For example: export GERRIT_REVIEWERS=username1,username2,username3"'
+GERRIT_REVIEWERS='test -v GERRIT_REVIEWERS && sed -e "s|^|%r=|" -e "s|,|,r=|g" <<< $GERRIT_REVIEWERS || echo'
+
+git-cfg alias.publish \
+   "! sh -c '$GERRIT_REVIEWERS_TIP; git push origin \${2:-HEAD}:refs/publish/\${1:-\`${UPSTREAM_BRANCH}\`}\`${GERRIT_REVIEWERS}\`' -"
+git-cfg alias.draft \
+   "! sh -c '$GERRIT_REVIEWERS_TIP; git push origin \${2:-HEAD}:refs/publish/\${1:-\`${UPSTREAM_BRANCH}\`}%draft\`${GERRIT_REVIEWERS}\`' -"
+git-cfg alias.private \
+   "! sh -c '$GERRIT_REVIEWERS_TIP; git push origin \${2:-HEAD}:refs/publish/\${USER}/\${1:-\`${UPSTREAM_BRANCH}\`}\`${GERRIT_REVIEWERS}\`' -"

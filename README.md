@@ -1,7 +1,10 @@
 # gitconfig
+
 git configuration
 
-Write to global `~/.gitconfig` with (replace `--global` with `--local` to write to the repository `.git/config` file instead):
+## Installation
+
+Use one of those one-liners to Write to global `~/.gitconfig` file (replace `--global` with `--local` to write to the repository `.git/config` file instead):
 
 ```
 # with curl
