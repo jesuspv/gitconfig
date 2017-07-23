@@ -22,6 +22,8 @@ git-cfg branch.master.rebase true
 # core
 #######################################
 
+git-cfg core.editor vim
+
 # track changes of the executable bit of mode (not the read/write bits)
 git-cfg core.filemode true
 
