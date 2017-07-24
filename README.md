@@ -10,7 +10,7 @@ instead.
 
 ```
 # with curl
-bash <(curl --location https://raw.githubusercontent.com/jesuspv/gitconfig/master/gitconfig) --global
+curl --location https://raw.githubusercontent.com/jesuspv/gitconfig/master/gitconfig | bash -s -- --global
 # with wget
-bash <(wget --output-document=- https://raw.githubusercontent.com/jesuspv/gitconfig/master/gitconfig) --global
+wget --output-document=- https://raw.githubusercontent.com/jesuspv/gitconfig/master/gitconfig | bash -s -- --global
 ```
