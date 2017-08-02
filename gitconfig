@@ -86,13 +86,34 @@ git-cfg alias.st status
 # Example: git vim HEAD~5.. # edit files changed over the last four commits
 git-cfg alias.vim "! sh -c 'vim \`git fshow \$1\`' -"
 
-git-cfg alias.wt worktree
+# worktree related
+{
+   git-cfg alias.common-dirname '!sh -c '\''basename "$(readlink -f "$(git rev-parse --git-common-dir)/..")"'\'
 
-git-cfg alias.wta '! sh -c '"'"'if [ "$0 $1" != " "  ]; then git worktree add -b "_$0" "$(readlink -f "$(git rev-parse --git-common-dir)")/../../hss_$0" "$1"; else echo "usage: git wta WORKTREE_ID REMOTE_BRANCH" >&2; fi'"'"
+   git-cfg alias.worktree-path '!f() { \
+      readlink -f "$(git rev-parse --git-common-dir)/../../$(git common-dirname)_$1"; \
+   }; f'
 
-git-cfg alias.wtl "worktree list"
+   git-cfg alias.wt 'worktree list'
 
-git-cfg alias.wtz '! sh -c '"'"'if [ -n "$0"  ]; then rm -rf "$(readlink -f "$(git rev-parse --git-common-dir)")/../../hss_$0"; git worktree prune; git branch -D "_$0"; else echo "usage: git wtz WORKTREE_ID" >&2; fi'"'"
+   git-cfg alias.wta '!f() { \
+      if [ "$1 $2" != " "  ]; then \
+         git worktree add -b "_$1" "$(git worktree-path "$1")" "$2"; \
+      else \
+         echo "usage: git wta WORKTREE_ID BRANCH" >&2; \
+      fi; \
+   }; f'
+
+   git-cfg alias.wtz '!f() { \
+      if [ -n "$1" ]; then \
+         rm -rf "$(git worktree-path "$1")"; \
+         git worktree prune; \
+         git branch --delete --force "_$1"; \
+      else \
+         echo "usage: git wtz WORKTREE_ID" >&2; \
+      fi \
+   }; f'
+}
 
 #######################################
 # alias - gerrit
