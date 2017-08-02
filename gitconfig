@@ -65,8 +65,9 @@ git-cfg alias.amend 'commit --all --amend --no-edit'
 
 git-cfg alias.br branch
 
-# cherry picking from another repository: $1="repository path" $2="commit HASH"
+# cherry picking from another repository
 git-cfg alias.cherry-pick-repo '!f() { \
+   [ $# -eq 2 ] || { echo "usage: git cherry-pick-repo REPOSITORY_PATH COMMIT" >&2; return 1; }; \
    git --git-dir="$1/.git" format-patch -k -1 --stdout "$2" | git am -3 -k; \
 }; f'
 
@@ -76,11 +77,12 @@ git-cfg alias.co checkout
 
 # Example: git fshow HEAD~5.. # show list of changed files over the last four commits
 git-cfg alias.fshow '!f() { \
-   git show --pretty=format: --name-only "$1" \
-   | grep -v '^$' \
+   [ $# -le 1 ] || { echo "usage: git fshow [OBJECT]" >&2; return 1; }; \
+   git show --pretty=format: --name-only $1 \
+   | grep -v "^$" \
    | uniq \
    | sed "s@^@$(git rev-parse --show-toplevel)/@"; \
-]; f'
+}; f'
 
 git-cfg alias.lf 'log --follow'
 
@@ -88,13 +90,14 @@ git-cfg alias.lf 'log --follow'
 git-cfg alias.pl "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 
 git-cfg alias.review '!f() { \
+   [ $# -le 2 ] || { echo "usage: git review [BRANCH] [SOURCE_OBJECT]" >&2; return 1; }; \
    if [ -v REVIEWERS ]; then \
       `# Gerrit reviewers format` \
       reviewers=$(echo "$REVIEWERS" | sed -e "s|^|%r=|" -e "s|,|,r=|g"); \
    else \
-      echo "Add reviewers by setting their username to environment variable REVIEWERS." \
-           "For example: export REVIEWERS=username1,username2,username3"; \
-      reviewers=''; \
+      echo "warning: add reviewers by setting their username to environment variable REVIEWERS." \
+           "For example: export REVIEWERS=username1,username2,username3" >&2; \
+      reviewers=""; \
    fi; \
    if [ $# -gt 0 ]; then \
       branch=$1; \
@@ -121,20 +124,20 @@ git-cfg alias.vim '!f() { vim "$(git fshow "$1")"; }; f'
    git-cfg alias.wt 'worktree list'
 
    git-cfg alias.wta '!f() { \
-      if [ "$1 $2" != " "  ]; then \
+      if [ $# -eq 2 ]; then \
          git worktree add -b "_$1" "$(git worktree-path "$1")" "$2"; \
       else \
-         echo "usage: git wta WORKTREE_ID BRANCH" >&2; \
+         echo "usage: git wta WORKTREE_ID BRANCH" >&2; return 1; \
       fi; \
    }; f'
 
    git-cfg alias.wtz '!f() { \
-      if [ -n "$1" ]; then \
+      if [ $# -eq 1 ]; then \
          rm -rf "$(git worktree-path "$1")"; \
          git worktree prune; \
          git branch --delete --force "_$1"; \
       else \
-         echo "usage: git wtz WORKTREE_ID" >&2; \
+         echo "usage: git wtz WORKTREE_ID" >&2; return 1; \
       fi \
    }; f'
 }
