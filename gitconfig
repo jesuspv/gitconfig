@@ -135,8 +135,8 @@ git-cfg alias.vim '!f() { vim "$(git fshow "$1")"; }; f'
    # worktree delete
    git-cfg alias.wd '!f() { \
       if [ $# -eq 1 ]; then \
-         rm -rf "$(git worktree-path "$1")"; \
-         git worktree prune; \
+         rm --force --recursive --verbose "$(git worktree-path "$1")"; \
+         git worktree prune --verbose; \
          git branch --delete --force "_$1"; \
       else \
          echo "usage: git wd WORKTREE_ID" >&2; return 1; \
