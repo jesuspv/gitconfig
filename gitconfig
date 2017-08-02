@@ -137,7 +137,7 @@ git-cfg alias.vim '!f() { vim "$(git fshow "$1")"; }; f'
       if [ $# -eq 1 ]; then \
          worktree_path=$(git worktree-path "$1"); \
          rm --force --recursive "$worktree_path"; \
-         echo "removed directory $worktree_path"; \
+         echo "Removed directory $worktree_path"; \
          git worktree prune --verbose; \
          git branch --delete --force "_$1"; \
       else \
