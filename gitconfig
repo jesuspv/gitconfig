@@ -121,23 +121,25 @@ git-cfg alias.vim '!f() { vim "$(git fshow "$1")"; }; f'
       readlink -f "$(git rev-parse --git-common-dir)/../../$(git common-dirname)_$1"; \
    }; f'
 
-   git-cfg alias.wt 'worktree list'
+   git-cfg alias.wl 'worktree list'
 
-   git-cfg alias.wta '!f() { \
+   # worktree add
+   git-cfg alias.wa '!f() { \
       if [ $# -eq 2 ]; then \
          git worktree add -b "_$1" "$(git worktree-path "$1")" "$2"; \
       else \
-         echo "usage: git wta WORKTREE_ID BRANCH" >&2; return 1; \
+         echo "usage: git wa WORKTREE_ID BRANCH" >&2; return 1; \
       fi; \
    }; f'
 
-   git-cfg alias.wtz '!f() { \
+   # worktree delete
+   git-cfg alias.wd '!f() { \
       if [ $# -eq 1 ]; then \
          rm -rf "$(git worktree-path "$1")"; \
          git worktree prune; \
          git branch --delete --force "_$1"; \
       else \
-         echo "usage: git wtz WORKTREE_ID" >&2; return 1; \
+         echo "usage: git wd WORKTREE_ID" >&2; return 1; \
       fi \
    }; f'
 }
