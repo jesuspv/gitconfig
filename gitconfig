@@ -51,13 +51,6 @@ git-cfg fetch.prune true
 git-cfg log.follow true
 
 #######################################
-# merge
-#######################################
-
-# reminder to rebase, forcing otherwise with --no-ff
-git-cfg merge.ff only
-
-#######################################
 # push
 #######################################
 
