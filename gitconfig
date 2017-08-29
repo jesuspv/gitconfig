@@ -77,7 +77,7 @@ git-cfg alias.co checkout
 # Example: git fshow HEAD~5.. # show list of changed files over the last four commits
 git-cfg alias.fshow '!f() { \
    [ $# -le 1 ] || { echo "usage: git fshow [OBJECT]" >&2; return 1; }; \
-   git show --pretty=format: --name-only $1 \
+   git show --diff-filter=AM --pretty=format: --name-only $1 \
    | grep -v "^$" \
    | uniq \
    | sed "s@^@$(git rev-parse --show-toplevel)/@"; \
