@@ -90,7 +90,7 @@ git-cfg alias.pl "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Cres
 
 git-cfg alias.review '!f() { \
    [[ $# -le 2 ]] || { echo "usage: git review [BRANCH] [SOURCE_OBJECT]" >&2; return 1; }; \
-   if [[ -v REVIEWERS ]]; then \
+   if [[ -n ${REVIEWERS:-} ]]; then \
       `# Gerrit reviewers format` \
       reviewers=$(echo "$REVIEWERS" | sed --expression="s|^|%r=|" --expression="s|,|,r=|g"); \
    else \
