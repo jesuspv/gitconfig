@@ -67,7 +67,7 @@ git-cfg alias.br branch
 # cherry picking from another repository
 git-cfg alias.cherry-pick-repo '!f() { \
    [ $# -eq 2 ] || { echo "usage: git cherry-pick-repo REPOSITORY_PATH COMMIT" >&2; return 1; }; \
-   git --git-dir="$1/.git" format-patch -k -1 --stdout "$2" | git am -3 -k; \
+   git --git-dir="$1/.git" format-patch --keep-subject -1 --stdout "$2" | git am -3 --keep-non-patch; \
 }; f'
 
 git-cfg alias.ci 'commit -s'
@@ -92,7 +92,7 @@ git-cfg alias.review '!f() { \
    [ $# -le 2 ] || { echo "usage: git review [BRANCH] [SOURCE_OBJECT]" >&2; return 1; }; \
    if [ -v REVIEWERS ]; then \
       `# Gerrit reviewers format` \
-      reviewers=$(echo "$REVIEWERS" | sed -e "s|^|%r=|" -e "s|,|,r=|g"); \
+      reviewers=$(echo "$REVIEWERS" | sed --expression="s|^|%r=|" --expression="s|,|,r=|g"); \
    else \
       echo "warning: add reviewers by setting their username to environment variable REVIEWERS." \
            "For example: export REVIEWERS=username1,username2,username3" >&2; \
@@ -102,7 +102,7 @@ git-cfg alias.review '!f() { \
       branch=$1; \
    else \
       `# upstream branch` \
-      branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} | cut -f2 -d/); \
+      branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} | cut --fields=2- --delimiter=/); \
    fi; \
    git push origin "${2:-HEAD}:refs/for/$branch$reviewers"; \
 }; f'
