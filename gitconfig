@@ -66,7 +66,7 @@ git-cfg alias.br branch
 
 # cherry picking from another repository
 git-cfg alias.cherry-pick-repo '!f() { \
-   [ $# -eq 2 ] || { echo "usage: git cherry-pick-repo REPOSITORY_PATH COMMIT" >&2; return 1; }; \
+   [[ $# -eq 2 ]] || { echo "usage: git cherry-pick-repo REPOSITORY_PATH COMMIT" >&2; return 1; }; \
    git --git-dir="$1/.git" format-patch --keep-subject -1 --stdout "$2" | git am -3 --keep-non-patch; \
 }; f'
 
@@ -76,7 +76,7 @@ git-cfg alias.co checkout
 
 # Example: git fshow HEAD~5.. # show list of changed files over the last four commits
 git-cfg alias.fshow '!f() { \
-   [ $# -le 1 ] || { echo "usage: git fshow [OBJECT]" >&2; return 1; }; \
+   [[ $# -le 1 ]] || { echo "usage: git fshow [OBJECT]" >&2; return 1; }; \
    git show --diff-filter=AM --pretty=format: --name-only $1 \
    | grep -v "^$" \
    | uniq \
@@ -89,8 +89,8 @@ git-cfg alias.lf 'log --follow'
 git-cfg alias.pl "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 
 git-cfg alias.review '!f() { \
-   [ $# -le 2 ] || { echo "usage: git review [BRANCH] [SOURCE_OBJECT]" >&2; return 1; }; \
-   if [ -v REVIEWERS ]; then \
+   [[ $# -le 2 ]] || { echo "usage: git review [BRANCH] [SOURCE_OBJECT]" >&2; return 1; }; \
+   if [[ -v REVIEWERS ]]; then \
       `# Gerrit reviewers format` \
       reviewers=$(echo "$REVIEWERS" | sed --expression="s|^|%r=|" --expression="s|,|,r=|g"); \
    else \
@@ -98,7 +98,7 @@ git-cfg alias.review '!f() { \
            "For example: export REVIEWERS=username1,username2,username3" >&2; \
       reviewers=""; \
    fi; \
-   if [ $# -gt 0 ]; then \
+   if [[ $# -gt 0 ]]; then \
       branch=$1; \
    else \
       `# upstream branch` \
@@ -124,7 +124,7 @@ git-cfg alias.vim '!f() { vim "$(git fshow "$1")"; }; f'
 
    # worktree add
    git-cfg alias.wa '!f() { \
-      if [ $# -eq 2 ]; then \
+      if [[ $# -eq 2 ]]; then \
          git worktree add -b "_$1" "$(git worktree-path "$1")" "$2"; \
       else \
          echo "usage: git wa WORKTREE_ID BRANCH" >&2; return 1; \
@@ -133,7 +133,7 @@ git-cfg alias.vim '!f() { vim "$(git fshow "$1")"; }; f'
 
    # worktree delete
    git-cfg alias.wd '!f() { \
-      if [ $# -eq 1 ]; then \
+      if [[ $# -eq 1 ]]; then \
          worktree_path=$(git worktree-path "$1"); \
          rm --force --recursive "$worktree_path"; \
          echo "Removed directory $worktree_path"; \
