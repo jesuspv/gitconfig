@@ -91,7 +91,7 @@ git-cfg alias.pl "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Cres
 git-cfg alias.review '!f() { \
    [[ $# -le 2 ]] || { echo "usage: git review [BRANCH] [SOURCE_OBJECT]" >&2; return 1; }; \
    if [[ -n ${REVIEWERS:-} ]]; then \
-      `# Gerrit reviewers format` \
+      `# Gerrit reviewers format`; \
       reviewers=$(echo "$REVIEWERS" | sed --expression="s|^|%r=|" --expression="s|,|,r=|g"); \
    else \
       echo "warning: add reviewers by setting their username to environment variable REVIEWERS." \
@@ -101,7 +101,7 @@ git-cfg alias.review '!f() { \
    if [[ $# -gt 0 ]]; then \
       branch=$1; \
    else \
-      `# upstream branch` \
+      `# upstream branch`; \
       branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} | cut --fields=2- --delimiter=/); \
    fi; \
    git push origin "${2:-HEAD}:refs/for/$branch$reviewers"; \
