@@ -65,30 +65,30 @@ git-cfg alias.amend 'commit --all --amend --no-edit'
 git-cfg alias.br branch
 
 # cherry picking from another repository
-git-cfg alias.cherry-pick-repo '!f() { \
+git-cfg alias.cherry-pick-repo '!bash -c '"'"'f() { \
    [[ $# -eq 2 ]] || { echo "usage: git cherry-pick-repo REPOSITORY_PATH COMMIT" >&2; return 1; }; \
    git --git-dir="$1/.git" format-patch --keep-subject -1 --stdout "$2" | git am -3 --keep-non-patch; \
-}; f'
+}; f'"'"
 
 git-cfg alias.ci 'commit -s'
 
 git-cfg alias.co checkout
 
 # Example: git fshow HEAD~5.. # show list of changed files over the last four commits
-git-cfg alias.fshow '!f() { \
+git-cfg alias.fshow '!bash -c '"'"'f() { \
    [[ $# -le 1 ]] || { echo "usage: git fshow [OBJECT]" >&2; return 1; }; \
    git show --diff-filter=AM --pretty=format: --name-only $1 \
    | grep -v "^$" \
    | uniq \
    | sed "s@^@$(git rev-parse --show-toplevel)/@"; \
-}; f'
+}; f'"'"
 
 git-cfg alias.lf 'log --follow'
 
 # pretty log
 git-cfg alias.pl "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 
-git-cfg alias.review '!f() { \
+git-cfg alias.review '!bash -c '"'"'f() { \
    [[ $# -le 2 ]] || { echo "usage: git review [BRANCH] [SOURCE_OBJECT]" >&2; return 1; }; \
    if [[ -n ${REVIEWERS:-} ]]; then \
       `# Gerrit reviewers format`; \
@@ -105,34 +105,34 @@ git-cfg alias.review '!f() { \
       branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} | cut --fields=2- --delimiter=/); \
    fi; \
    git push origin "${2:-HEAD}:refs/for/$branch$reviewers"; \
-}; f'
+}; f'"'"
 
 git-cfg alias.st status
 
 # Example: git vim HEAD~5.. # edit files changed over the last four commits
-git-cfg alias.vim '!f() { vim "$(git fshow "$1")"; }; f'
+git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git fshow "$1")"; }; f'"'"
 
 # worktree related
 {
-   git-cfg alias.common-dirname '!f() { basename "$(readlink -f "$(git rev-parse --git-common-dir)/..")"; }; f'
+   git-cfg alias.common-dirname '!bash -c '"'"'f() { basename "$(readlink -f "$(git rev-parse --git-common-dir)/..")"; }; f'"''"
 
-   git-cfg alias.worktree-path '!f() { \
+   git-cfg alias.worktree-path '!bash -c '"'"'f() { \
       readlink -f "$(git rev-parse --git-common-dir)/../../$(git common-dirname)_$1"; \
-   }; f'
+   }; f'"'"
 
    git-cfg alias.wl 'worktree list'
 
    # worktree add
-   git-cfg alias.wa '!f() { \
+   git-cfg alias.wa '!bash -c '"'"'f() { \
       if [[ $# -eq 2 ]]; then \
          git worktree add -b "_$1" "$(git worktree-path "$1")" "$2"; \
       else \
          echo "usage: git wa WORKTREE_ID BRANCH" >&2; return 1; \
       fi; \
-   }; f'
+   }; f'"'"
 
    # worktree delete
-   git-cfg alias.wd '!f() { \
+   git-cfg alias.wd '!bash -c '"'"'f() { \
       if [[ $# -eq 1 ]]; then \
          worktree_path=$(git worktree-path "$1"); \
          rm --force --recursive "$worktree_path"; \
@@ -142,5 +142,5 @@ git-cfg alias.vim '!f() { vim "$(git fshow "$1")"; }; f'
       else \
          echo "usage: git wd WORKTREE_ID" >&2; return 1; \
       fi \
-   }; f'
+   }; f'"'"
 }
