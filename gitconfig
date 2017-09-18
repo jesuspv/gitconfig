@@ -68,7 +68,7 @@ git-cfg alias.br branch
 git-cfg alias.cherry-pick-repo '!bash -c '"'"'f() { \
    [[ $# -eq 2 ]] || { echo "usage: git cherry-pick-repo REPOSITORY_PATH COMMIT" >&2; return 1; }; \
    git --git-dir="$1/.git" format-patch --keep-subject -1 --stdout "$2" | git am -3 --keep-non-patch; \
-}; f'"'"
+}; f "$@"'"' --"
 
 git-cfg alias.ci 'commit -s'
 
@@ -77,11 +77,11 @@ git-cfg alias.co checkout
 # Example: git fshow HEAD~5.. # show list of changed files over the last four commits
 git-cfg alias.fshow '!bash -c '"'"'f() { \
    [[ $# -le 1 ]] || { echo "usage: git fshow [OBJECT]" >&2; return 1; }; \
-   git show --diff-filter=AM --pretty=format: --name-only $1 \
+   git show --diff-filter=AM --pretty=format: --name-only "$@" \
    | grep -v "^$" \
    | uniq \
    | sed "s@^@$(git rev-parse --show-toplevel)/@"; \
-}; f'"'"
+}; f "$@"'"' --"
 
 git-cfg alias.lf 'log --follow'
 
@@ -105,12 +105,12 @@ git-cfg alias.review '!bash -c '"'"'f() { \
       branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} | cut --fields=2- --delimiter=/); \
    fi; \
    git push origin "${2:-HEAD}:refs/for/$branch$reviewers"; \
-}; f'"'"
+}; f "$@"'"' --"
 
 git-cfg alias.st status
 
 # Example: git vim HEAD~5.. # edit files changed over the last four commits
-git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git fshow "$1")"; }; f'"'"
+git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git fshow "$1")"; }; f "$@"'"' --"
 
 # worktree related
 {
@@ -118,7 +118,7 @@ git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git fshow "$1")"; }; f'"'"
 
    git-cfg alias.worktree-path '!bash -c '"'"'f() { \
       readlink -f "$(git rev-parse --git-common-dir)/../../$(git common-dirname)_$1"; \
-   }; f'"'"
+   }; f "$@"'"' --"
 
    git-cfg alias.wl 'worktree list'
 
@@ -129,7 +129,7 @@ git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git fshow "$1")"; }; f'"'"
       else \
          echo "usage: git wa WORKTREE_ID BRANCH" >&2; return 1; \
       fi; \
-   }; f'"'"
+   }; f "$@"'"' --"
 
    # worktree delete
    git-cfg alias.wd '!bash -c '"'"'f() { \
@@ -142,5 +142,5 @@ git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git fshow "$1")"; }; f'"'"
       else \
          echo "usage: git wd WORKTREE_ID" >&2; return 1; \
       fi \
-   }; f'"'"
+   }; f "$@"'"' --"
 }
