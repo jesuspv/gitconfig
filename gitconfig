@@ -74,7 +74,7 @@ git-cfg alias.ci 'commit -s'
 
 git-cfg alias.co checkout
 
-git-cfg alias.cor '!bash -c "git checkout && git submodule update"'
+git-cfg alias.cor '!bash -c '"'"'f() { git checkout "$@" && git submodule update; }; f "$@"'"' --"
 
 # Example: git fshow HEAD~5.. # show list of changed files over the last four commits
 git-cfg alias.fshow '!bash -c '"'"'f() { \
