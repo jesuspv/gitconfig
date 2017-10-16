@@ -116,7 +116,7 @@ git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git fshow "$1")"; }; f "$@"'"' --"
 
 # worktree related
 {
-   git-cfg alias.common-dirname '!bash -c '"'"'f() { basename "$(readlink -f "$(git rev-parse --git-common-dir)/..")"; }; f'"''"
+   git-cfg alias.common-dirname '!bash -c '"'"'f() { basename "$(readlink -f "$(git rev-parse --git-common-dir)/..")"; }; f'"'"
 
    git-cfg alias.worktree-path '!bash -c '"'"'f() { \
       readlink -f "$(git rev-parse --git-common-dir)/../../$(git common-dirname)_$1"; \
