@@ -100,13 +100,13 @@ git-cfg alias.review '!bash -c '"'"'f() { \
            "For example: export REVIEWERS=username1,username2,username3" >&2; \
       reviewers=""; \
    fi; \
-   if [[ $# -gt 0 ]]; then \
-      branch=$1; \
+   if [[ $# -eq 2 ]]; then \
+      branch=$2; \
    else \
       `# upstream branch`; \
       branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} | cut --fields=2- --delimiter=/); \
    fi; \
-   git push origin "${2:-HEAD}:refs/for/$branch$reviewers"; \
+   git push origin "${1:-HEAD}:refs/for/$branch$reviewers"; \
 }; f "$@"'"' --"
 
 git-cfg alias.st status
