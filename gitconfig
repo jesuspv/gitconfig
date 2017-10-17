@@ -32,7 +32,7 @@ git-cfg core.filemode true
 git-cfg core.preloadindex true
 
 # required for the 'pl' alias to colorize the output
-git-cfg core.pager 'less --no-init --raw-control-chars --quit-if-one-screen'
+git-cfg core.pager 'less --RAW-CONTROL-CHARS --no-init --quit-if-one-screen'
 
 git-cfg core.autocrlf input
 
