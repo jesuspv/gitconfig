@@ -70,14 +70,17 @@ git-cfg alias.cherry-pick-repo '!bash -c '"'"'f() { \
    git --git-dir="$1/.git" format-patch --keep-subject -1 --stdout "$2" | git am -3 --keep-non-patch; \
 }; f "$@"'"' --"
 
+# Example: git cherry-files # show list of changed files over the local commits
+git-cfg alias.cherry-files '!git files --branches --not --remotes'
+
 git-cfg alias.ci 'commit -s'
 
 git-cfg alias.co checkout
 
 git-cfg alias.cor '!bash -c '"'"'f() { git checkout "$@" && git submodule update; }; f "$@"'"' --"
 
-# Example: git fshow HEAD~5.. # show list of changed files over the last four commits
-git-cfg alias.fshow '!bash -c '"'"'f() { \
+# Example: git files HEAD~5.. # show list of changed files over the last four commits
+git-cfg alias.files '!bash -c '"'"'f() { \
    git show --diff-filter=AM --pretty=format: --name-only "$@" \
    | grep -v "^$" \
    | uniq \
@@ -111,7 +114,7 @@ git-cfg alias.review '!bash -c '"'"'f() { \
 git-cfg alias.st status
 
 # Example: git vim HEAD~5.. # edit files changed over the last four commits
-git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git fshow "$1")"; }; f "$@"'"' --"
+git-cfg alias.vim '!bash -c '"'"'f() { vim "$(git files "$1")"; }; f "$@"'"' --"
 
 # worktree related
 {
