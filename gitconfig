@@ -78,7 +78,6 @@ git-cfg alias.cor '!bash -c '"'"'f() { git checkout "$@" && git submodule update
 
 # Example: git fshow HEAD~5.. # show list of changed files over the last four commits
 git-cfg alias.fshow '!bash -c '"'"'f() { \
-   [[ $# -le 1 ]] || { echo "usage: git fshow [OBJECT]" >&2; return 1; }; \
    git show --diff-filter=AM --pretty=format: --name-only "$@" \
    | grep -v "^$" \
    | uniq \
