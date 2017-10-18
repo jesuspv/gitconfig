@@ -39,6 +39,14 @@ git-cfg core.autocrlf input
 git-cfg core.bare false
 
 #######################################
+# diff
+#######################################
+
+git-cfg diff.tool p4merge
+git-cfg diff.guitool p4merge
+git-cfg difftool.p4merge.cmd 'p4merge "$LOCAL" "$REMOTE"'
+
+#######################################
 # fetch
 #######################################
 
@@ -49,6 +57,17 @@ git-cfg fetch.prune true
 #######################################
 
 git-cfg log.follow true
+
+#######################################
+# merge
+#######################################
+
+git-cfg merge.tool p4merge
+git-cfg merge.guitool p4merge
+git-cfg mergetool.p4merge.cmd 'p4merge "$BASE" "$LOCAL" "$REMOTE" "$MERGED"'
+git-cfg mergetool.p4merge.trustExitCode false
+
+git-cfg mergetool.keepBackup false
 
 #######################################
 # push
