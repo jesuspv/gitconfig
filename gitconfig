@@ -42,9 +42,12 @@ git-cfg core.bare false
 # diff
 #######################################
 
-git-cfg diff.tool p4merge
-git-cfg diff.guitool p4merge
-git-cfg difftool.p4merge.cmd 'p4merge "$LOCAL" "$REMOTE"'
+#git-cfg diff.tool p4merge
+#git-cfg diff.guitool p4merge
+#git-cfg difftool.p4merge.cmd 'p4merge "$LOCAL" "$REMOTE"'
+
+git-cfg diff.guitool meld
+git-cfg difftool.meld.cmd 'meld "$LOCAL" "$REMOTE" --label "DIFF (ORIGINAL MY)"'
 
 #######################################
 # fetch
@@ -62,12 +65,19 @@ git-cfg log.follow true
 # merge
 #######################################
 
-git-cfg merge.tool p4merge
-git-cfg merge.guitool p4merge
-git-cfg mergetool.p4merge.cmd 'p4merge "$BASE" "$LOCAL" "$REMOTE" "$MERGED"'
-git-cfg mergetool.p4merge.trustExitCode false
+#git-cfg merge.tool p4merge
+#git-cfg merge.guitool p4merge
+#git-cfg mergetool.p4merge.cmd 'p4merge "$BASE" "$LOCAL" "$REMOTE" "$MERGED"'
+#git-cfg mergetool.p4merge.trustExitCode false
+
+git-cfg merge.ff only
+git-cfg merge.tool meld
+
+git-cfg mergetool.meld.cmd 'meld --auto-merge "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED" --label "MERGE (REMOTE BASE MY)"'
+git-cfg mergetool.meld.trustExitCode false
 
 git-cfg mergetool.keepBackup false
+git-cfg mergetool.prompt false
 
 #######################################
 # push
@@ -98,7 +108,27 @@ git-cfg alias.co checkout
 
 git-cfg alias.cor '!bash -c '"'"'f() { git checkout "$@" && git submodule update; }; f "$@"'"' --"
 
-# Example: git files HEAD~5.. # show list of changed files over the last four commits
+# changes in a branch, excluding merged commits (--first-parent) and merges (--no-merges)
+# Example: git diffours BASE_TAG **/*.{c,cc,h,hh}
+git-cfg alias.diffours '!bash -c '"'"'f() { \
+   [[ -z $(git diff --name-only HEAD) ]] \
+      || { echo "error: found non-committed changes in working tree" >&2; exit 1; }; \
+   local -r patch=$(mktemp); \
+   trap "rm -f '$patch'" EXIT; \
+   local -r base=${1%%..*}; \
+   git diff --no-merges --first-parent "$1" -- "${@:2}" > "$patch"; \
+\
+   local -r branch=$(git rev-parse HEAD); \
+   git checkout --quiet "$base"; \
+   patch --quiet --strip=1 < "$patch"; \
+\
+   git difftool --dir-diff; \
+\
+   git checkout --force --quiet "$branch"; \
+}; f "$@"'"' --"
+
+# show list of changed files over the last four commits
+# Example: git files HEAD~5..
 git-cfg alias.files '!bash -c '"'"'f() { \
    git show --diff-filter=AM --pretty=format: --name-only "$@" \
    | grep -v "^$" \
@@ -107,6 +137,15 @@ git-cfg alias.files '!bash -c '"'"'f() { \
 }; f "$@"'"' --"
 
 git-cfg alias.lf 'log --follow'
+
+# files changed in a branch, excluding merged commits (--first-parent) and merges (--no-merges)
+# Example: git logours MY_BRANCH_BASE_TAG..mybranch | grep -E '\.(c|h|cc|hh)$'
+git-cfg alias.logours '!bash -c '"'"'f() {\
+   git log --first-parent --no-merges --pretty=format:"%h" "$@" \
+   | xargs git files \
+   | sort --uniq \
+   | sed "s|$(git rev-parse --show-toplevel)/||"; \
+}; f "$@"'"' --"
 
 # pretty log
 git-cfg alias.pl "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
