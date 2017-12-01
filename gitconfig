@@ -111,8 +111,8 @@ git-cfg alias.cor '!bash -c '"'"'f() { git checkout "$@" && git submodule update
 # changes in a branch, excluding merged commits (--first-parent) and merges (--no-merges)
 # Example: git diffours BASE_TAG **/*.{c,cc,h,hh}
 git-cfg alias.diffours '!bash -c '"'"'f() { \
-   [[ -z $(git diff --name-only HEAD) ]] \
-      || { echo "error: found non-committed changes in working tree" >&2; exit 1; }; \
+   [[ -z $(git status --porcelain) ]] \
+      || { echo "error: dirty working tree status" >&2; exit 1; }; \
    local -r patch=$(mktemp); \
    trap "rm -f '$patch'" EXIT; \
    local -r base=${1%%..*}; \
@@ -122,7 +122,8 @@ git-cfg alias.diffours '!bash -c '"'"'f() { \
    git checkout --quiet "$base"; \
    patch --quiet --strip=1 < "$patch"; \
 \
-   git difftool --dir-diff; \
+   git add "$(git rev-parse --show-toplevel)"; \
+   git difftool --dir-diff HEAD; \
 \
    git checkout --force --quiet "$branch"; \
 }; f "$@"'"' --"
