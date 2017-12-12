@@ -108,10 +108,10 @@ git-cfg alias.co checkout
 
 git-cfg alias.cor '!bash -c '"'"'f() { git checkout "$@" && git submodule update; }; f "$@"'"' --"
 
-# create a branch BRANCH-ours with our checked out branch BRANCH's commits
+# create a branch BRANCH-ours-TIMESTAMP with our checked out branch BRANCH's commits
 # (including merge commits, but not merged commits) from a common ancestor
 # with a base branch BASE_BRANCH. Then, you can review branch $BRANCH changes
-# with git difftool --dir-diff BASE_BRANCH...BRANCH-ours [FILES]
+# with git difftool --dir-diff BASE_BRANCH...BRANCH-ours-TIMESTAMP [FILES]
 git-cfg alias.branch-ours '!bash -c '"'"'f() { \
    [[ $# -eq 1 ]] || { echo "usage: git branch-ours BASE_BRANCH" >& 2; exit 1; }; \
 \
@@ -119,7 +119,7 @@ git-cfg alias.branch-ours '!bash -c '"'"'f() { \
    local -r branch=$(git rev-parse --abbrev-ref HEAD); \
 \
    local -r patch=$(mktemp); \
-   trap "rm -f \"$patch\"" EXIT; \
+   trap "rm \"$patch\"" EXIT; \
    git log -p -m --first-parent `# only our commits, see git log --help` \
       --pretty=email --stat     `# git am formatting` \
       --full-index --binary     `# handle binary patches` \
@@ -127,10 +127,9 @@ git-cfg alias.branch-ours '!bash -c '"'"'f() { \
       "$base_branch...$branch" > "$patch"; \
 \
    local -r first_commit=$(git log --right-only --format=%H "$base_branch...$branch" | tail --lines=1); \
-   git checkout -b "$branch-ours" "$first_commit^"; \
+   local -r our_branch=$branch-ours-$(date +%y%m%d%H%M); \
+   git checkout -b "$our_branch" "$first_commit^"; \
    git am "$patch"; \
-\
-   rm "$patch"; \
 }; f "$@"'"' -- "
 
 # show list of changed files
