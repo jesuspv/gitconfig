@@ -144,8 +144,8 @@ git-cfg alias.files '!bash -c '"'"'f() { \
 git-cfg alias.lf 'log --follow'
 
 # files changed in a branch, excluding other-branches' commits (--first-parent)
-# Example: git ourfiles MY_BRANCH_BASE_TAG..mybranch | grep -E '\.(cc?|hh?)$'
-git-cfg alias.ourfiles '!bash -c '"'"'f() {\
+# Example: git files-ours MY_BRANCH_BASE_TAG..mybranch | grep -E '\.(cc?|hh?)$'
+git-cfg alias.files-ours '!bash -c '"'"'f() {\
    git log --first-parent --pretty=format:"%h" "$@" \
    | xargs git files \
    | sort --uniq \
