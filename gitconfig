@@ -122,7 +122,7 @@ git-cfg alias.branch-ours '!bash -c '"'"'f() { \
    trap "rm -f \"$patch\"" EXIT; \
    git log -p -m --first-parent `# only our commits, see git log --help` \
       --pretty=email --stat     `# git am formatting` \
-	  --full-index --binary     `# handle binary patches` \
+      --full-index --binary     `# handle binary patches` \
       --reverse --right-only    `# only $branch commits, in chronological order` \
       "$base_branch...$branch" > "$patch"; \
 \
