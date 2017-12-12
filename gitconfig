@@ -108,25 +108,30 @@ git-cfg alias.co checkout
 
 git-cfg alias.cor '!bash -c '"'"'f() { git checkout "$@" && git submodule update; }; f "$@"'"' --"
 
-# changes in a branch, excluding merged commits (--first-parent) and merges (--no-merges)
-# Example: git diffours BASE_TAG **/*.{c,cc,h,hh}
-git-cfg alias.diffours '!bash -c '"'"'f() { \
-   [[ -z $(git status --porcelain) ]] \
-      || { echo "error: dirty working tree status" >&2; exit 1; }; \
+# create a branch BRANCH-ours with our checked out branch BRANCH's commits
+# (including merge commits, but not merged commits) from a common ancestor
+# with a base branch BASE_BRANCH. Then, you can review branch $BRANCH changes
+# with git difftool --dir-diff BASE_BRANCH...BRANCH-ours [FILES]
+git-cfg alias.branch-ours '!bash -c '"'"'f() { \
+   [[ $# -eq 1 ]] || { echo "usage: git branch-ours BASE_BRANCH" >& 2; exit 1; }; \
+\
+   local -r base_branch=$1; \
+   local -r branch=$(git rev-parse --abbrev-ref HEAD); \
+\
    local -r patch=$(mktemp); \
-   trap "rm -f '$patch'" EXIT; \
-   local -r base=${1%%..*}; \
-   git diff --no-merges --first-parent "$1" -- "${@:2}" > "$patch"; \
+   trap "rm -f \"$patch\"" EXIT; \
+   git log -p -m --first-parent `# only our commits, see git log --help` \
+      --pretty=email --stat     `# git am formatting` \
+	  --full-index --binary     `# handle binary patches` \
+      --reverse --right-only    `# only $branch commits, in chronological order` \
+      "$base_branch...$branch" > "$patch"; \
 \
-   local -r branch=$(git rev-parse HEAD); \
-   git checkout --quiet "$base"; \
-   patch --quiet --strip=1 < "$patch"; \
+   local -r first_commit=$(git log --right-only --format=%H "$base_branch...$branch" | tail --lines=1); \
+   git checkout -b "$branch-ours" "$first_commit^"; \
+   git am "$patch"; \
 \
-   git add "$(git rev-parse --show-toplevel)"; \
-   git difftool --dir-diff HEAD; \
-\
-   git checkout --force --quiet "$branch"; \
-}; f "$@"'"' --"
+   rm "$patch"; \
+}; f "$@"'"' -- "
 
 # show list of changed files over the last four commits
 # Example: git files HEAD~5..
@@ -139,10 +144,10 @@ git-cfg alias.files '!bash -c '"'"'f() { \
 
 git-cfg alias.lf 'log --follow'
 
-# files changed in a branch, excluding merged commits (--first-parent) and merges (--no-merges)
-# Example: git logours MY_BRANCH_BASE_TAG..mybranch | grep -E '\.(c|h|cc|hh)$'
-git-cfg alias.logours '!bash -c '"'"'f() {\
-   git log --first-parent --no-merges --pretty=format:"%h" "$@" \
+# files changed in a branch, excluding other-branches' commits (--first-parent)
+# Example: git ourfiles MY_BRANCH_BASE_TAG..mybranch | grep -E '\.(cc?|hh?)$'
+git-cfg alias.ourfiles '!bash -c '"'"'f() {\
+   git log --first-parent --pretty=format:"%h" "$@" \
    | xargs git files \
    | sort --uniq \
    | sed "s|$(git rev-parse --show-toplevel)/||"; \
