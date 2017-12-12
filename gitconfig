@@ -133,8 +133,8 @@ git-cfg alias.branch-ours '!bash -c '"'"'f() { \
    rm "$patch"; \
 }; f "$@"'"' -- "
 
-# show list of changed files over the last four commits
-# Example: git files HEAD~5..
+# show list of changed files
+# Example: git files HEAD~5.. # over the last four commits
 git-cfg alias.files '!bash -c '"'"'f() { \
    git show --diff-filter=AM --pretty=format: --name-only "$@" \
    | grep -v "^$" \
