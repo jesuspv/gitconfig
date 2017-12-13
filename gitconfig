@@ -108,28 +108,30 @@ git-cfg alias.co checkout
 
 git-cfg alias.cor '!bash -c '"'"'f() { git checkout "$@" && git submodule update; }; f "$@"'"' --"
 
-# create a branch BRANCH-ours-TIMESTAMP with our checked out branch BRANCH's commits
-# (including merge commits, but not merged commits) from a common ancestor
-# with a base branch BASE_BRANCH. Then, you can review branch $BRANCH changes
-# with git difftool --dir-diff BASE_BRANCH...BRANCH-ours-TIMESTAMP [FILES]
+# create a NEW_BRANCH with the commits in COMMIT_RANGE, including merge commits,
+# but not merged commits. With NEW_BRANCH, you could then, for instance, review
+# only "our" changes with git difftool -d COMMIT_RANGE [FILE+].
 git-cfg alias.branch-ours '!bash -c '"'"'f() { \
-   [[ $# -eq 1 ]] || { echo "usage: git branch-ours BASE_BRANCH" >& 2; exit 1; }; \
+   [[ $# -eq 2 ]] || { echo "usage: git branch-ours NEW_BRANCH COMMIT_RANGE" >& 2; exit 1; }; \
 \
-   local -r base_branch=$1; \
-   local -r branch=$(git rev-parse --abbrev-ref HEAD); \
+   local -r new_branch=$1; \
+   local -r commit_range=$2; \
 \
    local -r patch=$(mktemp); \
    trap "rm \"$patch\"" EXIT; \
+\
    git log -p -m --first-parent `# only our commits, see git log --help` \
       --pretty=email --stat     `# git am formatting` \
       --full-index --binary     `# handle binary patches` \
-      --reverse --right-only    `# only $branch commits, in chronological order` \
-      "$base_branch...$branch" > "$patch"; \
+      --reverse --right-only    `# only our branch commits, in chronological order` \
+      "$commit_range" > "$patch"; \
 \
-   local -r first_commit=$(git log --right-only --format=%H "$base_branch...$branch" | tail --lines=1); \
-   local -r our_branch=$branch-ours-$(date +%y%m%d%H%M); \
-   git checkout -b "$our_branch" "$first_commit^"; \
-   git am "$patch"; \
+   if [[ $commit_range =~ \.\.\. ]]; \
+   then local -r base_commit=$(git log --right-only --format=%H "$commit_range" | tail --lines=1 | sed 's/\$/^/'); \
+   else local -r base_commit=${commit_range%%.*}; \
+   fi; \
+\
+   git checkout -b "$new_branch" "$base_commit" && git am "$patch"; \
 }; f "$@"'"' -- "
 
 # show list of changed files
